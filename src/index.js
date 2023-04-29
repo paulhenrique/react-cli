@@ -4,7 +4,9 @@ const chalk = require("chalk");
 const figlet = require("figlet");
 const inquirer = require("inquirer");
 
+const { successMessage } = require("./util/messages");
 const packagesDependencies = require("./util/packageDependencies");
+const yarnInstallPackage = require("./util/yarnInstallPackage");
 
 const package = require("../package.json");
 
@@ -135,13 +137,12 @@ program.command("generate [entities...]").action(async (cEntities) => {
   shell.rm("-rf", `${libPath}temp`);
 });
 
-const successMessage = (message) => console.log(`${chalk.green(message)}`);
 // generate os arquivos plop para toda uma entidade
 // gerando os hooks, services, pages e components para a entidade passada
 program.command("install [entities...]").action(async (cEntities) => {
   // localização da pasta do usuário
   const userPath = shell.pwd().stdout;
-  console.log(userPath);
+
   let entities = cEntities;
   if (!entities?.length) {
     entities = (
@@ -206,14 +207,12 @@ program.command("install [entities...]").action(async (cEntities) => {
         "curl -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore"
       );
     }
-
     successMessage("Gitignore adicionado!");
 
     // inicializa o repositório git
     if (initGitRepository) {
       shell.exec("git init");
     }
-
     successMessage("Repositório git inicializado!");
   }
 
@@ -226,12 +225,7 @@ program.command("install [entities...]").action(async (cEntities) => {
     ];
   });
 
-  // roda o install via yarn ou npm dos packagesToBeInstalled
-  shell.exec(`yarn add ${packagesToBeInstalled.join(" ")}`);
-
-  successMessage(
-    `O(s) pacote(s) ${packagesToBeInstalled.join(",")} foram adicionados!`
-  );
+  yarnInstallPackage(packagesToBeInstalled.join(" "));
 });
 
 program.parse(process.argv);
