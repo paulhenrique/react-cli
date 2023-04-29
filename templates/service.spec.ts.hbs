@@ -1,0 +1,14 @@
+import {{pascalCase name}} from '.';
+
+/** 
+  * Service {{pascalCase name}} tests
+  * @module {{pascalCase name}}
+  */
+describe('{{pascalCase name}} tests', () => {
+  // verifica se o componente é renderizado
+  it('should render {{pascalCase name}}', () => {
+    const { getByText } = render(<{{pascalCase name}} />);
+    const linkElement = getByText(/{{pascalCase name}}/i);
+    expect(linkElement).toBeInTheDocument();
+  });
+})

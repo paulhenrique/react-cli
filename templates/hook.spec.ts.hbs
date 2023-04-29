@@ -1,0 +1,11 @@
+// faz teste do hook 
+import { renderHook } from '@testing-library/react-hooks';
+
+import { use{{pascalCase name}} } from '.';
+
+describe('Use{{pascalCase name}}', () => {
+  it('should return the example property', () => {
+    const { result } = renderHook(() => use{{pascalCase name}}({ fromProps: 'example' }));
+    expect(result.current.exampleProperty).toBe('exampleexample');
+  });
+});
