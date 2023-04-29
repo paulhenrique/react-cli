@@ -125,7 +125,7 @@ export default function (plop) {
       },
       {
         type: "add",
-        path: `${contextPath}hooks/{{pascalCase name}}/use{{pascalCase name}}.spec.ts`,
+        path: `${contextPath}hooks/use{{pascalCase name}}/use{{pascalCase name}}.spec.ts`,
         templateFile: "templates/hook.spec.ts.hbs",
       },
       {
@@ -137,7 +137,7 @@ export default function (plop) {
         type: "append",
         path: `${contextPath}hooks/index.ts`,
         unique: true,
-        templateFile: "templates/indexExport.ts.hbs",
+        templateFile: "templates/indexExportFolder.ts.hbs",
       },
     ],
   });
