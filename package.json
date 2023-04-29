@@ -3,11 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
-    "plop": "^3.1.2"
+    "commander": "^10.0.1",
+    "inquirer": "^9.2.0",
+    "plop": "^3.1.2",
+    "shelljs": "^0.8.5"
   },
   "scripts": {
     "plop": "plop"
+  },
+  "bin": {
+    "rcli": "src/index.js"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/inquirer": "^9.0.3"
   }
 }

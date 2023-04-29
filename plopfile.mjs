@@ -2,6 +2,8 @@
  *
  * @param {import('plop').Plop} plop
  */
+
+const contextPath = "temp/";
 export default function (plop) {
   // service generator
   plop.setGenerator("service", {
@@ -16,22 +18,22 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: "src/services/{{pascalCase name}}.ts",
+        path: `${contextPath}services/{{pascalCase name}}.ts`,
         templateFile: "templates/service.ts.hbs",
       },
       {
         type: "add",
-        path: "src/services/{{pascalCase name}}.spec.ts",
+        path: `${contextPath}services/{{pascalCase name}}.spec.ts`,
         templateFile: "templates/service.spec.ts.hbs",
       },
       {
         type: "add",
-        path: "src/services/index.ts",
+        path: `${contextPath}services/index.ts`,
         skipIfExists: true,
       },
       {
         type: "append",
-        path: "src/services/index.ts",
+        path: `${contextPath}services/index.ts`,
         unique: true,
         templateFile: "templates/indexExport.ts.hbs",
       },
@@ -50,22 +52,22 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: "src/components/{{pascalCase name}}/index.tsx",
+        path: `${contextPath}components/{{pascalCase name}}/index.tsx`,
         templateFile: "templates/component.tsx.hbs",
       },
       {
         type: "add",
-        path: "src/components/{{pascalCase name}}/{{pascalCase name}}.spec.ts",
+        path: `${contextPath}components/{{pascalCase name}}/{{pascalCase name}}.spec.ts`,
         templateFile: "templates/component.spec.tsx.hbs",
       },
       {
         type: "add",
-        path: "src/components/index.ts",
+        path: `${contextPath}components/index.ts`,
         skipIfExists: true,
       },
       {
         type: "append",
-        path: "src/components/index.ts",
+        path: `${contextPath}components/index.ts`,
         unique: true,
         templateFile: "templates/indexExportFolder.ts.hbs",
       },
@@ -84,22 +86,22 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: "src/pages/{{pascalCase name}}/index.tsx",
+        path: `${contextPath}pages/{{pascalCase name}}/index.tsx`,
         templateFile: "templates/component.tsx.hbs",
       },
       {
         type: "add",
-        path: "src/pages/{{pascalCase name}}/{{pascalCase name}}.spec.ts",
+        path: `${contextPath}pages/{{pascalCase name}}/{{pascalCase name}}.spec.ts`,
         templateFile: "templates/component.spec.tsx.hbs",
       },
       {
         type: "add",
-        path: "src/pages/index.ts",
+        path: `${contextPath}pages/index.ts`,
         skipIfExists: true,
       },
       {
         type: "append",
-        path: "src/pages/index.ts",
+        path: `${contextPath}pages/index.ts`,
         unique: true,
         templateFile: "templates/indexExportFolder.ts.hbs",
       },
@@ -118,42 +120,25 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: "src/hooks/use{{pascalCase name}}/index.ts",
+        path: `${contextPath}hooks/use{{pascalCase name}}/index.ts`,
         templateFile: "templates/hook.ts.hbs",
       },
       {
         type: "add",
-        path: "src/hooks/{{pascalCase name}}/use{{pascalCase name}}.spec.ts",
+        path: `${contextPath}hooks/{{pascalCase name}}/use{{pascalCase name}}.spec.ts`,
         templateFile: "templates/hook.spec.ts.hbs",
       },
       {
         type: "add",
-        path: "src/hooks/index.ts",
+        path: `${contextPath}hooks/index.ts`,
         skipIfExists: true,
       },
       {
         type: "append",
-        path: "src/hooks/index.ts",
+        path: `${contextPath}hooks/index.ts`,
         unique: true,
         templateFile: "templates/indexExport.ts.hbs",
       },
-    ],
-  });
-
-  plop.setGenerator("module", {
-    description: "Novo hook para a aplicação",
-    prompts: [
-      {
-        type: "input",
-        name: "name",
-        message: "hook name please",
-      },
-    ],
-    actions: [
-      ...plop.getGenerator("hook"),
-      ...plop.getGenerator("page"),
-      ...plop.getGenerator("component"),
-      ...plop.getGenerator("service"),
     ],
   });
 }
