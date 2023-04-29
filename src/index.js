@@ -7,7 +7,6 @@ program.version(package.version);
 // gera os arquivos plop na pasta da lib e depois copia para a pasta
 // em que o usuário executou o comando
 program.command("gen <type> <services...>").action((type, entities) => {
-  console.log(type, entities);
   // localização da pasta da biblioteca
   const libPath = __filename.replace("src\\index.js", "");
   // localização da pasta do usuário
