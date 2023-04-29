@@ -18,12 +18,12 @@ export default function (plop) {
     actions: [
       {
         type: "add",
-        path: `${contextPath}services/{{pascalCase name}}.ts`,
+        path: `${contextPath}services/{{pascalCase name}}/index.ts`,
         templateFile: "templates/service.ts.hbs",
       },
       {
         type: "add",
-        path: `${contextPath}services/{{pascalCase name}}.spec.ts`,
+        path: `${contextPath}services/{{pascalCase name}}/{{pascalCase name}}.spec.ts`,
         templateFile: "templates/service.spec.ts.hbs",
       },
       {
@@ -35,7 +35,7 @@ export default function (plop) {
         type: "append",
         path: `${contextPath}services/index.ts`,
         unique: true,
-        templateFile: "templates/indexExport.ts.hbs",
+        templateFile: "templates/indexExportFolder.ts.hbs",
       },
     ],
   });
