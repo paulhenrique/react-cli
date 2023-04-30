@@ -9,16 +9,45 @@ const yarnInstallPackage = require("./util/yarnInstallPackage");
 const removeTempFolder = require("./util/removeTempFolder");
 
 const package = require("../package.json");
-const { copyEverythingFromLib } = require("./util/copy");
-const { plopRunMultiple } = require("./util/plop");
 const { entitiesInquirer } = require("./util/entitiesInquirer");
 const { joinPackagesToString } = require("./util/joinPackagesToString");
-const { createSrcFolder } = require("./util/createSrcFolder");
+const { createPlop } = require("./util/createPlop");
 
 program.version(package.version);
 
 // remove a pasta temp antes da execução das instruções
 removeTempFolder();
+
+const createPackageJson = (useYarn = true) => {
+  // cria o package.json com yarn ou npm
+  if (createPackageJson) {
+    if (useYarn) {
+      shell.exec("yarn init -y");
+    } else {
+      shell.exec("npm init -y");
+    }
+  }
+
+  successMessage("Configuração de package json adicionada!");
+};
+
+const createGitIgnore = (addGitIgnore = true) => {
+  // adiciona o .gitignore fazendo um download do github para a configuração de node.js
+  if (addGitIgnore) {
+    shell.exec(
+      "curl -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore"
+    );
+  }
+  successMessage("Gitignore adicionado!");
+};
+
+const initializeGitRepository = (initGitRepository = true) => {
+  // inicializa o repositório git
+  if (initGitRepository) {
+    shell.exec("git init");
+  }
+  successMessage("Repositório git inicializado!");
+};
 
 // exibe o nome do projeto
 console.log(chalk.cyan(figlet.textSync("React CLI")));
@@ -28,49 +57,33 @@ console.log(chalk.cyan(figlet.textSync("React CLI")));
 program
   .command("create [type] [services...]")
   .action(async (cType, cEntities) => {
-    // localização da pasta da biblioteca
-    const libPath = __filename.replace("src\\index.js", "");
-    // localização da pasta do usuário
-    const userPath = shell.pwd().stdout;
-
-    // gera os arquivos plop na pasta da lib
-    shell.cd(libPath);
-
-    let type = cType;
-    if (!type) {
-      type = (
-        await inquirer.prompt([
-          {
-            type: "input",
-            name: "type",
-            message: "Qual é o tipo do gerador?",
-            validate: (value) =>
-              value ? true : "Não é permitido um tipo vazio",
-          },
-        ])
-      )?.type;
-    }
-    plopRunMultiple(await entitiesInquirer(cEntities), type);
-    createSrcFolder(userPath);
-    copyEverythingFromLib(libPath, userPath);
+    await createPlop(cEntities, cType);
   });
 
 // generate os arquivos plop para toda uma entidade
 // gerando os hooks, services, pages e components para a entidade passada
 program.command("generate [entities...]").action(async (cEntities) => {
-  // localização da pasta da biblioteca
-  const libPath = __filename.replace("src\\index.js", "");
+  await createPlop(cEntities);
+});
 
-  // localização da pasta do usuário
-  const userPath = shell.pwd().stdout;
-
-  // gera os arquivos plop na pasta da lib
-  shell.cd(libPath);
-
-  // executa o comando para cada entrada de services
-  plopRunMultiple(await entitiesInquirer(cEntities));
-  createSrcFolder(userPath);
-  copyEverythingFromLib(libPath, userPath);
+// generate os arquivos plop para toda uma entidade
+// gerando os hooks, services, pages e components para a entidade passada
+program.command("init").action(async (cEntities) => {
+  await createPlop(["home", "login", "register"]);
+  createPackageJson();
+  createGitIgnore();
+  initializeGitRepository();
+  yarnInstallPackage(
+    joinPackagesToString([
+      "react",
+      "router",
+      "styled",
+      "query",
+      "axios",
+      "mui",
+      "redux",
+    ])
+  );
 });
 
 // generate os arquivos plop para toda uma entidade
@@ -107,31 +120,9 @@ program.command("install [entities...]").action(async (cEntities) => {
           message: "Deseja adicionar o .gitignore?",
         },
       ]);
-
-    // cria o package.json com yarn ou npm
-    if (createPackageJson) {
-      if (useYarn) {
-        shell.exec("yarn init -y");
-      } else {
-        shell.exec("npm init -y");
-      }
-    }
-
-    successMessage("Configuração de package json adicionada!");
-
-    // adiciona o .gitignore fazendo um download do github para a configuração de node.js
-    if (addGitIgnore) {
-      shell.exec(
-        "curl -o .gitignore https://raw.githubusercontent.com/github/gitignore/master/Node.gitignore"
-      );
-    }
-    successMessage("Gitignore adicionado!");
-
-    // inicializa o repositório git
-    if (initGitRepository) {
-      shell.exec("git init");
-    }
-    successMessage("Repositório git inicializado!");
+    createPackageJson(useYarn);
+    createGitIgnore(addGitIgnore);
+    initializeGitRepository(initGitRepository);
   }
 
   yarnInstallPackage(joinPackagesToString(await entitiesInquirer(cEntities)));

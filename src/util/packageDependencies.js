@@ -1,5 +1,5 @@
 const packagesDependencies = {
-  "redux-toolkit": ["@reduxjs/toolkit", "react-redux"],
+  redux: ["@reduxjs/toolkit", "react-redux"],
   // material ui v5
   mui: ["@mui/material", "@emotion/react", "@emotion/styled"],
   // material ui v4
