@@ -5,15 +5,20 @@ const figlet = require("figlet");
 const inquirer = require("inquirer");
 
 const { successMessage } = require("./util/messages");
-const packagesDependencies = require("./util/packageDependencies");
 const yarnInstallPackage = require("./util/yarnInstallPackage");
+const removeTempFolder = require("./util/removeTempFolder");
 
 const package = require("../package.json");
+const { copyEverythingFromLib } = require("./util/copy");
+const { plopRunMultiple } = require("./util/plop");
+const { entitiesInquirer } = require("./util/entitiesInquirer");
+const { joinPackagesToString } = require("./util/joinPackagesToString");
+const { createSrcFolder } = require("./util/createSrcFolder");
 
 program.version(package.version);
 
 // remove a pasta temp antes da execução das instruções
-shell.rm("-rf", `${__filename.replace("src\\index.js", "")}temp`);
+removeTempFolder();
 
 // exibe o nome do projeto
 console.log(chalk.cyan(figlet.textSync("React CLI")));
@@ -45,43 +50,9 @@ program
         ])
       )?.type;
     }
-
-    let entities = cEntities;
-    if (!entities?.length) {
-      entities = (
-        await inquirer.prompt([
-          {
-            type: "input",
-            name: "entities",
-            message: "Quais entidades a serem geradas?",
-            validate: (value) =>
-              value ? true : "Precisa especificar entidades",
-          },
-        ])
-      )?.entities
-        .trimEnd()
-        .trimStart()
-        .split(" ");
-    }
-
-    // executa o comando para cada entrada de services
-    entities.forEach((entity) => {
-      shell.exec(`npm run plop ${type} ${entity}`);
-    });
-
-    // copia todos os arquivos gerados pelo na pasta temp para a pasta src do usuário
-    // e caso a pasta src não exista na pasta do usuário, cria a pasta
-    shell.cd(userPath);
-    shell.mkdir("-p", `${userPath}/src`);
-
-    // lista todos os arquivos que foram gerados na pasta temp
-    // e copia para a pasta src do usuário
-    shell.ls(`${libPath}temp`).forEach((file) => {
-      shell.cp("-R", `${libPath}temp/${file}`, `${userPath}/src`);
-    });
-
-    // remove a pasta temp da lib
-    shell.rm("-rf", `${libPath}temp`);
+    plopRunMultiple(await entitiesInquirer(cEntities), type);
+    createSrcFolder(userPath);
+    copyEverythingFromLib(libPath, userPath);
   });
 
 // generate os arquivos plop para toda uma entidade
@@ -89,52 +60,17 @@ program
 program.command("generate [entities...]").action(async (cEntities) => {
   // localização da pasta da biblioteca
   const libPath = __filename.replace("src\\index.js", "");
+
   // localização da pasta do usuário
   const userPath = shell.pwd().stdout;
 
   // gera os arquivos plop na pasta da lib
   shell.cd(libPath);
 
-  let entities = cEntities;
-  if (!entities?.length) {
-    entities = (
-      await inquirer.prompt([
-        {
-          type: "input",
-          name: "entities",
-          message: "Quais entidades a serem geradas?",
-          validate: (value) => (value ? true : "Precisa especificar entidades"),
-        },
-      ])
-    )?.entities
-      .trimEnd()
-      .trimStart()
-      .split(" ");
-  }
-
-  // types a serem gerados
-  const types = ["hook", "service", "page", "component"];
-
   // executa o comando para cada entrada de services
-  entities.forEach((entity) => {
-    types.forEach((type) => {
-      shell.exec(`npm run plop ${type} ${entity}`);
-    });
-  });
-
-  // copia todos os arquivos gerados pelo na pasta temp para a pasta src do usuário
-  // e caso a pasta src não exista na pasta do usuário, cria a pasta
-  shell.cd(userPath);
-  shell.mkdir("-p", `${userPath}/src`);
-
-  // lista todos os arquivos que foram gerados na pasta temp
-  // e copia para a pasta src do usuário
-  shell.ls(`${libPath}temp`).forEach((file) => {
-    shell.cp("-R", `${libPath}temp/${file}`, `${userPath}/src`);
-  });
-
-  // remove a pasta temp da lib
-  shell.rm("-rf", `${libPath}temp`);
+  plopRunMultiple(await entitiesInquirer(cEntities));
+  createSrcFolder(userPath);
+  copyEverythingFromLib(libPath, userPath);
 });
 
 // generate os arquivos plop para toda uma entidade
@@ -142,24 +78,6 @@ program.command("generate [entities...]").action(async (cEntities) => {
 program.command("install [entities...]").action(async (cEntities) => {
   // localização da pasta do usuário
   const userPath = shell.pwd().stdout;
-
-  let entities = cEntities;
-  if (!entities?.length) {
-    entities = (
-      await inquirer.prompt([
-        {
-          type: "input",
-          name: "entities",
-          message: "Quais entidades a serem geradas?",
-          validate: (value) => (value ? true : "Precisa especificar entidades"),
-        },
-      ])
-    )?.entities
-      .trimEnd()
-      .trimStart()
-      .split(" ");
-  }
-
   shell.cd(userPath);
 
   // verifica se o package.json existe na pasta do usuário
@@ -216,16 +134,7 @@ program.command("install [entities...]").action(async (cEntities) => {
     successMessage("Repositório git inicializado!");
   }
 
-  let packagesToBeInstalled = [];
-  // executa o comando para cada entrada de services
-  entities.forEach((entity) => {
-    packagesToBeInstalled = [
-      ...packagesToBeInstalled,
-      ...packagesDependencies[entity],
-    ];
-  });
-
-  yarnInstallPackage(packagesToBeInstalled.join(" "));
+  yarnInstallPackage(joinPackagesToString(await entitiesInquirer(cEntities)));
 });
 
 program.parse(process.argv);
